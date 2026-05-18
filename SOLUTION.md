@@ -16,34 +16,86 @@
                                               └───────────────┘
 ```
 
-**Data flow (submit):**
+### Sequence diagrams
 
-1. User submits `text` (+ optional `email`) from the React form.
-2. `POST /api/feedback` validates input with Zod.
-3. `AnalysisService` checks an in-memory SHA-256 cache; on miss, calls the configured provider (Gemini, OpenAI, or Anthropic), or mock when no API key.
-4. Parsed analysis is persisted via `FeedbackRepository` → Prisma → SQLite.
-5. Full record (including `analysis` object) is returned to the client.
+The diagrams below show the main request/response paths between the browser, API, AI provider, and database.
 
-**Data flow (list):**
+#### Submit feedback
 
-1. List page sends `page`, `pageSize`, optional `sentiment` and `tag` query params.
-2. Repository queries Prisma with server-side filters; tag filter applies post-fetch (JSON array in SQLite).
-3. TanStack Query caches and refetches when filters change.
+When a user submits feedback, analysis runs **synchronously** in the same request before the record is saved.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as React SPA
+    participant API as Fastify API
+    participant Analysis as AnalysisService
+    participant AI as OpenAI / Mock
+    participant DB as SQLite (Prisma)
+
+    User->>UI: Enter text (+ optional email)
+    UI->>API: POST /api/feedback
+    API->>API: Validate body (Zod)
+    API->>Analysis: analyze(text)
+    alt Cache hit (same text hash)
+        Analysis-->>API: Cached analysis
+    else Cache miss
+        Analysis->>AI: System prompt + feedback text
+        AI-->>Analysis: JSON (summary, sentiment, tags, priority, nextAction)
+        Analysis->>Analysis: Parse and validate (Zod)
+    end
+    API->>DB: INSERT feedback + analysis fields
+    DB-->>API: Stored record
+    API-->>UI: 201 Created + full record
+    UI-->>User: Success message
+```
+
+#### List and filter feedback
+
+The list page loads data from the API on mount and refetches when filters, search, sort, or page change. Row clicks open a detail modal using data already in the list (no extra fetch).
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as React SPA
+    participant TQ as TanStack Query
+    participant API as Fastify API
+    participant DB as SQLite (Prisma)
+
+    User->>UI: Open list / change page, filters, or search
+    UI->>TQ: queryKey updated
+    TQ->>API: GET /api/feedback?page&pageSize&sentiment&tag&search&sortBy
+    API->>API: Validate query params (Zod)
+    API->>DB: SELECT with filters + pagination + sort
+    DB-->>API: Rows + total count
+    API-->>TQ: Paginated JSON
+    TQ-->>UI: items, loading, or error state
+    UI-->>User: Table or empty state
+
+    User->>UI: Click a row
+    UI-->>User: Detail modal (full text + analysis from list item)
+```
+
+**In short:**
+
+- **Submit:** UI → API → (cache or AI) → DB → response with analysis embedded.
+- **List:** UI → TanStack Query → API → DB → table; optional filters/search are applied on the server.
 
 ## Technology stack choices
 
-| Choice | Rationale |
-|--------|-----------|
-| **Fastify** | Lightweight, fast, plugin-based middleware; good fit for a focused REST API |
-| **Prisma + SQLite** | Type-safe ORM, zero Docker setup, relational model; swap to Postgres via `DATABASE_URL` |
-| **Google Gemini** (`@google/generative-ai`) | Default for local dev; `responseMimeType: application/json` |
-| **OpenAI** (`openai` SDK) | Assignment-aligned; `AI_PROVIDER=openai`; `response_format: json_object` |
-| **Anthropic** (`@anthropic-ai/sdk`) | Assignment-aligned; `AI_PROVIDER=anthropic`; JSON in message text |
-| **Zod** | Shared validation for HTTP bodies and AI output |
-| **React + Vite** | Fast dev experience, component-oriented UI |
-| **TanStack Query** | Server-state management with loading/error/refetch for list filters |
-| **Vitest** | Single test runner for API and frontend |
-| **pino** | Structured JSON logging with correlation IDs |
+
+| Choice                                      | Rationale                                                                              |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Fastify**                                 | Lightweight, fast, plugin-based middleware; good fit for a focused REST API            |
+| **Prisma + SQLite**                         | Type-safe ORM, zero Docker setup, relational model; swap to Postgres via`DATABASE_URL` |
+| **OpenAI** (`openai` SDK)                   | Default provider; `gpt-4o-mini`; `response_format: json_object`                        |
+| **Google Gemini** (`@google/generative-ai`) | Optional; `responseMimeType: application/json`                                         |
+| **Anthropic** (`@anthropic-ai/sdk`)         | Assignment-aligned;`AI_PROVIDER=anthropic`; JSON in message text                       |
+| **Zod**                                     | Shared validation for HTTP bodies and AI output                                        |
+| **React + Vite**                            | Fast dev experience, component-oriented UI                                             |
+| **TanStack Query**                          | Server-state management with loading/error/refetch for list filters                    |
+| **Vitest**                                  | Single test runner for API and frontend                                                |
+| **pino**                                    | Structured JSON logging with correlation IDs                                           |
 
 ### AI provider selection
 
@@ -57,7 +109,7 @@ Default provider is **OpenAI** (`gpt-4o-mini`). Set `AI_PROVIDER` to `openai`, `
 - Filters on `sentiment` and pagination map naturally to SQL indexes
 - Prisma migrations support evolving to PostgreSQL without code changes
 
-MongoDB would add flexibility we do not need for a single-entity app.
+MongoDB/Firebase would add flexibility we do not need for a single-entity app.
 
 ## AI prompt engineering and safety
 
@@ -71,11 +123,12 @@ MongoDB would add flexibility we do not need for a single-entity app.
 
 **In-memory hash cache** keyed by SHA-256 of normalized feedback text.
 
-| Why cache | Why not retries (for this exercise) |
-|-----------|-------------------------------------|
+
+| Why cache                                            | Why not retries (for this exercise)                |
+| ---------------------------------------------------- | -------------------------------------------------- |
 | Duplicate submissions are common in feedback systems | Retries are harder to demonstrate and test quickly |
-| Instant response on cache hit | Backoff adds latency to POST |
-| Easy to unit test (verify SDK called once) | Better suited as a complement in production |
+| Instant response on cache hit                        | Backoff adds latency to POST                       |
+| Easy to unit test (verify SDK called once)           | Better suited as a complement in production        |
 
 **Production evolution:** Redis with TTL; cache key could include model version.
 
@@ -106,18 +159,19 @@ Development uses `pino-pretty` when `NODE_ENV=development`. Set `LOG_LEVEL=debug
 
 ## Testing strategy
 
-| Area | Tests | Scenarios |
-|------|-------|-----------|
-| Analysis utils | `analysis.utils.test.ts` | JSON parse, hash, mock, Zod validation |
-| Analysis service | `analysis.service.test.ts` | Mock, Gemini, OpenAI, Anthropic, cache, malformed JSON |
-| Config | `config.test.ts` | `hasAiCredentials` per provider |
-| Schemas | `schemas.feedback.test.ts` | Request/query/analysis validation |
-| Repository helpers | `feedback.repository.test.ts` | `parseTags`, `toRecord` |
-| Feedback routes | `feedback.routes.test.ts` | POST success, POST 400, GET list, GET 404 |
-| Badge / TagList | component tests | Rendering and variants |
-| API client | `client.test.ts` | URLs, errors |
-| List page | `FeedbackListPage.test.tsx` | Sentiment filter refetch |
-| Submit form | `SubmitPage.test.tsx` | Submit success, error display |
+
+| Area               | Tests                         | Scenarios                                              |
+| ------------------ | ----------------------------- | ------------------------------------------------------ |
+| Analysis utils     | `analysis.utils.test.ts`      | JSON parse, hash, mock, Zod validation                 |
+| Analysis service   | `analysis.service.test.ts`    | Mock, Gemini, OpenAI, Anthropic, cache, malformed JSON |
+| Config             | `config.test.ts`              | `hasAiCredentials` per provider                        |
+| Schemas            | `schemas.feedback.test.ts`    | Request/query/analysis validation                      |
+| Repository helpers | `feedback.repository.test.ts` | `parseTags`, `toRecord`                                |
+| Feedback routes    | `feedback.routes.test.ts`     | POST success, POST 400, GET list, GET 404              |
+| Badge / TagList    | component tests               | Rendering and variants                                 |
+| API client         | `client.test.ts`              | URLs, errors                                           |
+| List page          | `FeedbackListPage.test.tsx`   | Sentiment filter refetch                               |
+| Submit form        | `SubmitPage.test.tsx`         | Submit success, error display                          |
 
 ## Operational runbook
 
