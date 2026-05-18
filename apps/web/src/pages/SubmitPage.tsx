@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
+import { feedbackKeys } from "../api/queryKeys";
 import "./SubmitPage.css";
 
 export function SubmitPage() {
+  const queryClient = useQueryClient();
   const [text, setText] = useState("");
   const [email, setEmail] = useState("");
   const [submittedId, setSubmittedId] = useState<string | null>(null);
@@ -19,6 +21,7 @@ export function SubmitPage() {
       setSubmittedId(data.id);
       setText("");
       setEmail("");
+      void queryClient.invalidateQueries({ queryKey: feedbackKeys.all });
     },
   });
 

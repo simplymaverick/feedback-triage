@@ -84,18 +84,16 @@ sequenceDiagram
 ## Technology stack choices
 
 
-| Choice                                      | Rationale                                                                              |
-| ------------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Fastify**                                 | Lightweight, fast, plugin-based middleware; good fit for a focused REST API            |
-| **Prisma + SQLite**                         | Type-safe ORM, zero Docker setup, relational model; swap to Postgres via`DATABASE_URL` |
-| **OpenAI** (`openai` SDK)                   | Default provider; `gpt-4o-mini`; `response_format: json_object`                        |
-| **Google Gemini** (`@google/generative-ai`) | Optional; `responseMimeType: application/json`                                         |
-| **Anthropic** (`@anthropic-ai/sdk`)         | Assignment-aligned;`AI_PROVIDER=anthropic`; JSON in message text                       |
-| **Zod**                                     | Shared validation for HTTP bodies and AI output                                        |
-| **React + Vite**                            | Fast dev experience, component-oriented UI                                             |
-| **TanStack Query**                          | Server-state management with loading/error/refetch for list filters                    |
-| **Vitest**                                  | Single test runner for API and frontend                                                |
-| **pino**                                    | Structured JSON logging with correlation IDs                                           |
+| Choice                    | Rationale                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| **Fastify**               | Lightweight, fast, plugin-based middleware; good fit for a focused REST API            |
+| **Prisma + SQLite**       | Type-safe ORM, zero Docker setup, relational model; swap to Postgres via`DATABASE_URL` |
+| **OpenAI** (`openai` SDK) | Default provider;`gpt-4o-mini`; `response_format: json_object`                         |
+| **Zod**                   | Shared validation for HTTP bodies and AI output                                        |
+| **React + Vite**          | Fast dev experience, component-oriented UI                                             |
+| **TanStack Query**        | Server-state management with loading/error/refetch for list filters                    |
+| **Vitest**                | Single test runner for API and frontend                                                |
+| **pino**                  | Structured JSON logging with correlation IDs                                           |
 
 ### AI provider selection
 

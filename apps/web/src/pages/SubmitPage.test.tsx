@@ -56,6 +56,43 @@ describe("SubmitPage", () => {
     });
   });
 
+  it("invalidates feedback list cache after successful submit", async () => {
+    const user = userEvent.setup();
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    vi.spyOn(client.api, "createFeedback").mockResolvedValue({
+      id: "test-id",
+      text: "Great app",
+      email: null,
+      createdAt: new Date().toISOString(),
+      analysis: {
+        summary: "Positive feedback",
+        sentiment: "positive",
+        tags: ["ux"],
+        priority: "P3",
+        nextAction: "Share with team",
+      },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <SubmitPage />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    await user.type(screen.getByRole("textbox", { name: /feedback/i }), "New feedback");
+    await user.click(screen.getByRole("button", { name: /submit feedback/i }));
+
+    await waitFor(() => {
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["feedback"] });
+    });
+  });
+
   it("shows error when submission fails", async () => {
     const user = userEvent.setup();
     vi.spyOn(client.api, "createFeedback").mockRejectedValue(new Error("Server error"));

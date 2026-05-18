@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, type SortByField, type SortOrder } from "../api/client";
+import { feedbackKeys } from "../api/queryKeys";
 import type { FeedbackRecord, Sentiment } from "../types";
 import { Badge } from "../components/Badge";
 import { TagList } from "../components/TagList";
@@ -20,7 +21,7 @@ export function FeedbackListPage() {
   const [selected, setSelected] = useState<FeedbackRecord | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["feedback", page, sentiment, tag, search, sortBy, sortOrder],
+    queryKey: [...feedbackKeys.all, page, sentiment, tag, search, sortBy, sortOrder],
     queryFn: () =>
       api.listFeedback({
         page,
