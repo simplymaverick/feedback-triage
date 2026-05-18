@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Sentiment {
+  positive
+  neutral
+  negative
+}
+
+enum Priority {
+  P0
+  P1
+  P2
+  P3
+}
+
+model Feedback {
+  id         String    @id @default(cuid())
+  text       String
+  email      String?
+  createdAt  DateTime  @default(now())
+  summary    String
+  sentiment  Sentiment
+  tags       String
+  priority   Priority
+  nextAction String
+
+  @@index([sentiment])
+  @@index([createdAt])
+}

@@ -1,0 +1,22 @@
+{
+  "name": "feedback-triage",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev -w @feedback-triage/api",
+    "dev:web": "npm run dev -w @feedback-triage/web",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "npm run build -w @feedback-triage/api",
+    "build:web": "npm run build -w @feedback-triage/web",
+    "test": "npm run test --workspaces --if-present",
+    "db:migrate": "npm run db:migrate -w @feedback-triage/api",
+    "db:generate": "npm run db:generate -w @feedback-triage/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

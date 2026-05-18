@@ -1,0 +1,67 @@
+:root {
+  --oz-bg: #0f0e14;
+  --oz-header: #12101c;
+  --oz-surface: #1a1828;
+  --oz-surface-hover: #252238;
+  --oz-border: #2e2a42;
+  --oz-text: #f4f2ff;
+  --oz-muted: #9b94b8;
+  --oz-primary: #6c5ce7;
+  --oz-primary-hover: #5b4bd4;
+  --oz-primary-muted: rgba(108, 92, 231, 0.15);
+  --positive: #22c55e;
+  --neutral: #94a3b8;
+  --negative: #ef4444;
+  --p0: #dc2626;
+  --p1: #ea580c;
+  --p2: #ca8a04;
+  --p3: #64748b;
+
+  /* Legacy aliases used in components */
+  --bg: var(--oz-bg);
+  --surface: var(--oz-surface);
+  --surface-hover: var(--oz-surface-hover);
+  --border: var(--oz-border);
+  --text: var(--oz-text);
+  --text-muted: var(--oz-muted);
+  --accent: var(--oz-primary);
+  --accent-hover: var(--oz-primary-hover);
+
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  color: var(--oz-text);
+  background: var(--oz-bg);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(108, 92, 231, 0.12), transparent),
+    var(--oz-bg);
+}
+
+a {
+  color: var(--oz-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--oz-primary-hover);
+  text-decoration: underline;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+}

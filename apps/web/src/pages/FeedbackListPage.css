@@ -1,0 +1,121 @@
+.list-page h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.list-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.list-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.list-filters select,
+.list-filters input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  min-width: 140px;
+}
+
+.list-filters__search {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+}
+
+.list-state {
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
+}
+
+.list-state--error {
+  color: var(--negative);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--oz-border);
+  border-radius: 12px;
+  background: var(--oz-surface);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.feedback-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.feedback-table th,
+.feedback-table td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.feedback-table th {
+  background: var(--surface);
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+.feedback-table__row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.feedback-table__row:hover,
+.feedback-table__row:focus {
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.feedback-table__summary {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feedback-table__date {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

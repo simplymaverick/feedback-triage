@@ -1,0 +1,33 @@
+.sortable-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sortable-header:hover {
+  color: var(--oz-text);
+}
+
+.sortable-header--active {
+  color: var(--oz-primary);
+}
+
+.sortable-header__icon {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.sortable-header--active .sortable-header__icon {
+  opacity: 1;
+}
