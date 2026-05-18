@@ -28,7 +28,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type SortByField = "summary" | "sentiment" | "tags" | "priority" | "createdAt";
 export type SortOrder = "asc" | "desc";
 
-export interface ListParams {
+interface ListParams {
   page?: number;
   pageSize?: number;
   sentiment?: string;
@@ -57,7 +57,4 @@ export const api = {
     const qs = search.toString();
     return request<PaginatedFeedback>(`/api/feedback${qs ? `?${qs}` : ""}`);
   },
-
-  getFeedback: (id: string) =>
-    request<FeedbackRecord>(`/api/feedback/${id}`),
 };

@@ -5,7 +5,7 @@ export const createFeedbackSchema = z.object({
   email: z.string().email("invalid email").optional().or(z.literal("")),
 });
 
-export const sortByFieldSchema = z.enum([
+const sortByFieldSchema = z.enum([
   "summary",
   "sentiment",
   "tags",
@@ -13,7 +13,7 @@ export const sortByFieldSchema = z.enum([
   "createdAt",
 ]);
 
-export const sortOrderSchema = z.enum(["asc", "desc"]);
+const sortOrderSchema = z.enum(["asc", "desc"]);
 
 export const listFeedbackQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -33,6 +33,5 @@ export const analysisSchema = z.object({
   nextAction: z.string().min(1).max(500),
 });
 
-export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
 export type ListFeedbackQuery = z.infer<typeof listFeedbackQuerySchema>;
 export type AnalysisOutput = z.infer<typeof analysisSchema>;

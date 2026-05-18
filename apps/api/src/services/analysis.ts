@@ -5,7 +5,6 @@ import type { Logger } from "pino";
 import type { Env } from "../config.js";
 import { hasAiCredentials } from "../config.js";
 import { AppError, ErrorCodes } from "../lib/errors.js";
-import { logger as rootLogger } from "../lib/logger.js";
 import type { AnalysisResult } from "../types.js";
 import {
   SYSTEM_PROMPT,
@@ -324,5 +323,3 @@ export class AnalysisService {
     cache.clear();
   }
 }
-
-export { rootLogger };

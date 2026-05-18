@@ -22,11 +22,3 @@ export interface PaginatedFeedback {
   pageSize: number;
   total: number;
 }
-
-export interface ApiErrorBody {
-  error: {
-    code: string;
-    message: string;
-    requestId: string;
-  };
-}

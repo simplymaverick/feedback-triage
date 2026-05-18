@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 
 export async function registerRequestId(app: FastifyInstance) {

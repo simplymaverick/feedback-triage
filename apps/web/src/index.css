@@ -18,7 +18,6 @@
   --p3: #64748b;
 
   /* Legacy aliases used in components */
-  --bg: var(--oz-bg);
   --surface: var(--oz-surface);
   --surface-hover: var(--oz-surface-hover);
   --border: var(--oz-border);
